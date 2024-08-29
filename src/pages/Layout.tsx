@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { useMediaQuery } from "react-responsive";
 import { useRouter } from "next/navigation"; // Use 'next/navigation' instead
+import { useMainContext } from "@/context/main";
 
 interface GridLayoutProps {
 	children: ReactNode;
@@ -21,9 +22,10 @@ interface Category {
 	name: string;
 }
 
-const SidebarLinks: React.FC<{ categories: Category[] }> = ({ categories }) => {
+const SidebarLinks: React.FC<{ categories: Array<Category> }> = ({
+	categories,
+}) => {
 	const router = useRouter();
-
 	const handleCategoryClick = (categoryId: string) => {
 		router.push(`/?category=${categoryId}`);
 	};
@@ -49,12 +51,12 @@ const GridLayout: React.FC<GridLayoutProps> = ({ children }) => {
 	const [mounted, setMounted] = useState(false);
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [loading, setLoading] = useState<boolean>(true);
-
+	const context = useMainContext();
 	const fetchCategories = async () => {
 		try {
 			const res = await fetch("/api/categories");
 			const data = await res.json();
-			setCategories(data);
+			context?.addCategoryList(data);
 			setLoading(false);
 		} catch (error) {
 			setCategories([]);
@@ -65,6 +67,7 @@ const GridLayout: React.FC<GridLayoutProps> = ({ children }) => {
 	useEffect(() => {
 		setMounted(true);
 		fetchCategories();
+		console.log("render");
 	}, []);
 
 	// Define breakpoints
@@ -107,11 +110,13 @@ const GridLayout: React.FC<GridLayoutProps> = ({ children }) => {
 								{isMobile ? (
 									<Collapsible open={isLinksOpen} onOpenChange={setIsLinksOpen}>
 										<CollapsibleContent>
-											<SidebarLinks categories={categories} />
+											<SidebarLinks
+												categories={context?.state.categories || []}
+											/>
 										</CollapsibleContent>
 									</Collapsible>
 								) : (
-									<SidebarLinks categories={categories} />
+									<SidebarLinks categories={context?.state.categories || []} />
 								)}
 							</div>
 						</aside>

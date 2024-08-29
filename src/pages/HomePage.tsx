@@ -13,6 +13,7 @@ import {
 import Link from "next/link";
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useMainContext } from "@/context/main";
 
 // Spinner component using Font Awesome
 const Spinner = () => (
@@ -26,6 +27,7 @@ const HomePage = () => {
 	const [posts, setPosts] = useState<Array<{ [key: string]: string }>>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+	const context = useMainContext();
 
 	const fetchPosts = async () => {
 		try {
@@ -34,9 +36,8 @@ const HomePage = () => {
 				throw new Error("Network response was not ok");
 			}
 			const posts = await res.json();
-			setPosts(posts);
+			context?.addPostList(posts);
 		} catch (error) {
-			console.error("Failed to fetch posts:", error);
 			setPosts([]);
 		} finally {
 			setLoading(false);
@@ -44,6 +45,7 @@ const HomePage = () => {
 	};
 
 	useEffect(() => {
+		console.log(context);
 		fetchPosts();
 	}, []);
 
@@ -147,10 +149,10 @@ const HomePage = () => {
 				<Spinner />
 			) : (
 				<div>
-					{posts.length > 0 ? (
-						posts.map((item) => (
+					{context?.state?.posts && context?.state?.posts.length > 0 ? (
+						context?.state?.posts.map((item) => (
 							<div
-								key={item.id}
+								key={item._id}
 								className="bg-white rounded-lg shadow-md p-4 mb-4 flex justify-between items-center"
 							>
 								<div>

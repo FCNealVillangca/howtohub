@@ -1,11 +1,13 @@
 "use client";
-import React, { createContext, useState, ReactNode } from "react";
+import React, { createContext, useState, ReactNode, useContext } from "react";
 
-const mainContext = createContext<
+const MainContext = createContext<
 	| {
 			state: MainStateType;
 			addPost: (post: PostType) => void;
-			updatePost: (post: PostType) => void; // Added method
+			updatePost: (post: PostType) => void;
+			addPostList: (posts: PostType[]) => void;
+			addCategoryList: (categories: CategoryType[]) => void; // Added method
 	  }
 	| undefined
 >(undefined);
@@ -17,9 +19,10 @@ type CategoryType = {
 
 type PostType = {
 	_id: string;
-	title: string; // Corrected from 'tittle' to 'title'
+	title: string;
 	content: string;
 	categoryId: string;
+	slug: string;
 };
 
 type MainStateType = {
@@ -51,12 +54,31 @@ const MainContextProvider: React.FC<{ children: ReactNode }> = ({
 		}));
 	};
 
+	const addPostList = (posts: PostType[]) => {
+		setState((prevState) => ({
+			...prevState,
+			posts: [...prevState.posts, ...posts],
+		}));
+	};
+
+	const addCategoryList = (categories: CategoryType[]) => {
+		setState((prevState) => ({
+			...prevState,
+			categories: categories,
+		}));
+	};
+
 	return (
-		<mainContext.Provider value={{ state, addPost, updatePost }}>
+		<MainContext.Provider
+			value={{ state, addPost, updatePost, addPostList, addCategoryList }}
+		>
 			{children}
-		</mainContext.Provider>
+		</MainContext.Provider>
 	);
 };
 
 export default MainContextProvider;
-export { mainContext };
+export { MainContext };
+export const useMainContext = () => {
+	return useContext(MainContext);
+};
