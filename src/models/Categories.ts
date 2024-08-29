@@ -1,13 +1,9 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 // Define the interface for the Category document
-interface CategoryDocument extends Document {
-	_id: string;
-	name: string;
-}
 
 // Define the Mongoose schema for the Category
-const CategorySchema: Schema<CategoryDocument> = new Schema({
+const CategorySchema = new Schema({
 	name: {
 		type: String,
 		required: true,
@@ -16,6 +12,8 @@ const CategorySchema: Schema<CategoryDocument> = new Schema({
 });
 
 // Create and export the Category model
-const Category = mongoose.model<CategoryDocument>("category", CategorySchema);
+const Category =
+	mongoose.models.Category ||
+	mongoose.model("Category", CategorySchema, "categories");
 
 export default Category;

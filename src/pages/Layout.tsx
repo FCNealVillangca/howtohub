@@ -9,73 +9,35 @@ import { ReactNode, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { useMediaQuery } from "react-responsive";
+import { useRouter } from "next/navigation"; // Use 'next/navigation' instead
 
 interface GridLayoutProps {
 	children: ReactNode;
 }
 
-// Example categories with creative names and UUIDs
-const categories = [
-	{
-		id: "6e8d8f60-8f51-4d60-a8db-c7c8fbd38e0b",
-		name: "Mystical Realms",
-		slug: "mystical-realms",
-	},
-	{
-		id: "a2f5a9a1-3e78-4c75-8dce-8d40a5b028f9",
-		name: "Galactic Explorations",
-		slug: "galactic-explorations",
-	},
-	{
-		id: "eae8ff8a-5571-4f5f-bc9d-11861c54d0b3",
-		name: "Urban Legends & Lore",
-		slug: "urban-legends-lore",
-	},
-	{
-		id: "d4f3d2b5-b029-4c60-bb2d-3a3d9eb4b9b9",
-		name: "Culinary Journeys",
-		slug: "culinary-journeys",
-	},
-	{
-		id: "fdac09da-df5b-4ea8-b2d2-026c97e22f8b",
-		name: "Ancient Secrets",
-		slug: "ancient-secrets",
-	},
-	{
-		id: "8e5f6e7a-45e8-48d2-b9d3-5b75d1a7db23",
-		name: "Enchanted Wilderness",
-		slug: "enchanted-wilderness",
-	},
-	{
-		id: "b4c3e94f-3baf-4a57-94e1-5b7a3d70f8d1",
-		name: "Celestial Phenomena",
-		slug: "celestial-phenomena",
-	},
-	{
-		id: "fc04c5e7-6c37-42b7-b4d2-7b8a3f5cde82",
-		name: "Historical Mysteries",
-		slug: "historical-mysteries",
-	},
-	{
-		id: "a743bd78-5a77-4bcb-8b44-4cbd7249e4e1",
-		name: "Futuristic Innovations",
-		slug: "futuristic-innovations",
-	},
-	{
-		id: "d6e0b9b2-40d2-4a4f-9d62-5a19f5c4d40e",
-		name: "Timeless Legends",
-		slug: "timeless-legends",
-	},
-];
+// Define the shape of a category based on the API response
+interface Category {
+	_id: string;
+	name: string;
+}
 
-const SidebarLinks: React.FC = () => {
+const SidebarLinks: React.FC<{ categories: Category[] }> = ({ categories }) => {
+	const router = useRouter();
+
+	const handleCategoryClick = (categoryId: string) => {
+		router.push(`/?category=${categoryId}`);
+	};
+
 	return (
 		<ul>
 			{categories.map((category) => (
-				<li key={category.id} className="mb-2">
-					<a href={`/${category.slug}`} className="hover:underline">
+				<li key={category._id} className="mb-2">
+					<button
+						onClick={() => handleCategoryClick(category._id)}
+						className="text-blue-500 hover:underline"
+					>
 						{category.name}
-					</a>
+					</button>
 				</li>
 			))}
 		</ul>
@@ -85,29 +47,26 @@ const SidebarLinks: React.FC = () => {
 const GridLayout: React.FC<GridLayoutProps> = ({ children }) => {
 	const [isLinksOpen, setIsLinksOpen] = useState(false);
 	const [mounted, setMounted] = useState(false);
-	// const [categories, setCategories] = useState<
-	// 	Array<{ [key: string]: string }>
-	// >([]);
-
+	const [categories, setCategories] = useState<Category[]>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 
 	const fetchCategories = async () => {
 		try {
-			const res = await fetch("/api/posts");
-			const posts = await res.json();
-
-			return posts;
+			const res = await fetch("/api/categories");
+			const data = await res.json();
+			setCategories(data);
+			setLoading(false);
 		} catch (error) {
-			return [];
+			setCategories([]);
+			setLoading(false);
 		}
 	};
 
 	useEffect(() => {
 		setMounted(true);
-		fetchCategories().then((categories) => {
-			console.log(categories);
-		});
+		fetchCategories();
 	}, []);
+
 	// Define breakpoints
 	const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
 
@@ -122,7 +81,7 @@ const GridLayout: React.FC<GridLayoutProps> = ({ children }) => {
 						<aside className={`w-full ${!isMobile ? "md:w-64" : ""}`}>
 							<div className="bg-white rounded-lg shadow-lg p-4">
 								<div className="flex items-center justify-between">
-									<h2 className="text-lg font-bold">Sidebar</h2>
+									<h2 className="text-lg font-bold">Categories</h2>
 									{isMobile && (
 										<Collapsible
 											open={isLinksOpen}
@@ -148,11 +107,11 @@ const GridLayout: React.FC<GridLayoutProps> = ({ children }) => {
 								{isMobile ? (
 									<Collapsible open={isLinksOpen} onOpenChange={setIsLinksOpen}>
 										<CollapsibleContent>
-											<SidebarLinks />
+											<SidebarLinks categories={categories} />
 										</CollapsibleContent>
 									</Collapsible>
 								) : (
-									<SidebarLinks />
+									<SidebarLinks categories={categories} />
 								)}
 							</div>
 						</aside>
@@ -165,6 +124,8 @@ const GridLayout: React.FC<GridLayoutProps> = ({ children }) => {
 				</div>
 			</div>
 		);
+
+	return null; // Return null if not mounted
 };
 
 export default GridLayout;

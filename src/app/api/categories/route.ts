@@ -5,10 +5,12 @@ import { NextResponse } from "next/server";
 export const GET = async () => {
 	try {
 		dbConnect();
-		const categories = await Category.find({});
-
+		const categories = await Category.find();
+		console.log(categories);
 		return NextResponse.json(categories);
 	} catch (error) {
+		console.log("here");
+		console.log(error);
 		return NextResponse.json([]);
 	}
 };

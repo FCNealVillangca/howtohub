@@ -8,15 +8,16 @@ import {
 	faTrash,
 	faEdit,
 	faSpinner,
-	faTimes, // Import the spinner icon
+	faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog"; // Import Shadcn Dialog components
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 // Spinner component using Font Awesome
 const Spinner = () => (
 	<div className="flex justify-center items-center">
-		<FontAwesomeIcon icon={faSpinner} spin className="text-gray-500 text-3xl" />{" "}
+		<FontAwesomeIcon icon={faSpinner} spin className="text-gray-500 text-3xl" />
 		<span className="ml-4">Loading</span>
 	</div>
 );
@@ -29,19 +30,42 @@ const HomePage = () => {
 	const fetchPosts = async () => {
 		try {
 			const res = await fetch("/api/posts");
+			if (!res.ok) {
+				throw new Error("Network response was not ok");
+			}
 			const posts = await res.json();
-			return posts;
+			setPosts(posts);
 		} catch (error) {
-			return [];
+			console.error("Failed to fetch posts:", error);
+			setPosts([]);
+		} finally {
+			setLoading(false);
 		}
 	};
 
 	useEffect(() => {
-		fetchPosts().then((posts) => {
-			setPosts(posts);
-			setLoading(false);
-		});
+		fetchPosts();
 	}, []);
+
+	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		const formData = new FormData(event.currentTarget);
+		const data = Object.fromEntries(formData.entries());
+		alert(JSON.stringify(data));
+
+		try {
+			// const res = await fetch("/api/posts", {
+			// 	method: "POST",
+			// 	headers: {
+			// 		"Content-Type": "application/json",
+			// 	},
+			// });
+
+			setIsModalOpen(false);
+		} catch (error) {
+			console.error("Failed to submit form:", error);
+		}
+	};
 
 	return (
 		<div>
@@ -53,60 +77,63 @@ const HomePage = () => {
 						placeholder="Search..."
 						className="flex-grow border rounded-md p-2 focus:outline-none"
 					/>
-					<button
+					<Button
 						type="button"
-						className="px-4 py-2 bg-blue-500 text-white rounded-md flex items-center"
+						className="px-4 py-2 bg-blue-500 text-white flex items-center"
 					>
 						<FontAwesomeIcon icon={faSearch} className="mr-2" /> Search
-					</button>
+					</Button>
 					{/* Add button triggers the modal */}
 					<Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
 						<DialogTrigger asChild>
-							<button
+							<Button
 								type="button"
-								className="px-4 py-2 bg-green-500 text-white rounded-md flex items-center"
+								className="px-4 py-2 bg-green-500 text-white flex items-center"
 								onClick={() => setIsModalOpen(true)}
 							>
 								<FontAwesomeIcon icon={faPlus} className="mr-2" /> Add
-							</button>
+							</Button>
 						</DialogTrigger>
 						<DialogContent>
 							<div className="p-6 relative">
 								{/* Close button */}
-								<button
+								<Button
 									type="button"
 									className="absolute top-4 right-4 text-gray-500"
 									onClick={() => setIsModalOpen(false)}
+									variant="ghost"
 								>
 									<FontAwesomeIcon icon={faTimes} className="text-2xl" />
-								</button>
+								</Button>
 								<h2 className="text-lg font-semibold mb-4">Add New Post</h2>
-								{/* Add your form or content here */}
-								<form>
+								<form onSubmit={handleSubmit}>
 									<Input
+										name="tittle"
 										type="text"
 										placeholder="Title"
 										className="mb-4 border rounded-md p-2 w-full focus:outline-none"
 									/>
-									<Input
-										type="text"
+									<textarea
+										name="content"
 										placeholder="Content"
 										className="mb-4 border rounded-md p-2 w-full focus:outline-none"
+										rows={5}
 									/>
 									<div className="flex justify-end space-x-4">
-										<button
+										<Button
 											type="button"
-											className="px-4 py-2 bg-gray-500 text-white rounded-md"
+											className="px-4 py-2 bg-gray-500 text-white"
 											onClick={() => setIsModalOpen(false)}
+											variant="ghost"
 										>
 											Cancel
-										</button>
-										<button
+										</Button>
+										<Button
 											type="submit"
-											className="px-4 py-2 bg-blue-500 text-white rounded-md"
+											className="px-4 py-2 bg-blue-500 text-white"
 										>
 											Submit
-										</button>
+										</Button>
 									</div>
 								</form>
 							</div>
@@ -135,18 +162,20 @@ const HomePage = () => {
 									</Link>
 								</div>
 								<div className="flex space-x-2">
-									<button
+									<Button
 										type="button"
-										className="px-2 py-1 bg-blue-500 text-white rounded-md flex items-center"
+										className="px-2 py-1 bg-blue-500 text-white flex items-center"
+										variant="ghost"
 									>
 										<FontAwesomeIcon icon={faEdit} className="mr-1" /> Edit
-									</button>
-									<button
+									</Button>
+									<Button
 										type="button"
-										className="px-2 py-1 bg-red-500 text-white rounded-md flex items-center"
+										className="px-2 py-1 bg-red-500 text-white flex items-center"
+										variant="ghost"
 									>
 										<FontAwesomeIcon icon={faTrash} className="mr-1" /> Delete
-									</button>
+									</Button>
 								</div>
 							</div>
 						))
@@ -158,13 +187,13 @@ const HomePage = () => {
 								It looks like there are no posts available. Be the first to
 								create one!
 							</p>
-							<button
+							<Button
 								type="button"
-								className="mt-4 px-4 py-2 bg-green-500 text-white rounded-md"
+								className="mt-4 px-4 py-2 bg-green-500 text-white"
 								onClick={() => setIsModalOpen(true)}
 							>
 								Add Post
-							</button>
+							</Button>
 						</div>
 					)}
 				</div>
