@@ -1,32 +1,34 @@
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { marked } from "marked";
-import xss from "xss";
+import React from "react";
 
-const PostPage = () => {
-  return (
-    <Carousel className="bg-blue-200 max-w-md">
-      <CarouselContent>
-        <CarouselItem className="bg-gray-200 h-full">
-          {marked
-            .parse(
-              xss(
-                "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ratione sed"
-              ),
-              { breaks: true }
-            )
-            .toString()}
-        </CarouselItem>
-      </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
-    </Carousel>
-  );
+// Define a type for the blog post, if needed
+interface PostPageProps {
+	title: string;
+	author: string;
+	date: string;
+	content: string;
+}
+
+const PostPage: React.FC<PostPageProps> = ({
+	title,
+	author,
+	date,
+	content,
+}) => {
+	return (
+		<div className="bg-white rounded-lg shadow-lg p-6 mb-6 mx-auto">
+			{/* Blog Title */}
+			<h1 className="text-3xl font-bold mb-4">{title}</h1>
+
+			{/* Author and Date */}
+			<div className="text-sm text-gray-600 mb-4">
+				<p>By {author}</p>
+				<p>{date}</p>
+			</div>
+
+			{/* Blog Content */}
+			<div className="text-lg text-gray-800">{content}</div>
+		</div>
+	);
 };
 
 export default PostPage;

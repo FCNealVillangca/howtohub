@@ -1,5 +1,5 @@
-import PostPage from "@/pages/PostPage";
+import HomePage from "@/pages/HomePage";
 
 export default function Home() {
-  return <PostPage />;
+	return <HomePage />;
 }
