@@ -1,5 +1,6 @@
 "use client";
 import React, { createContext, useState, ReactNode, useContext } from "react";
+import makeUniqueById from "@/lib/makeArrayUnique";
 
 const MainContext = createContext<
 	| {
@@ -7,7 +8,8 @@ const MainContext = createContext<
 			addPost: (post: PostType) => void;
 			updatePost: (post: PostType) => void;
 			addPostList: (posts: PostType[]) => void;
-			addCategoryList: (categories: CategoryType[]) => void; // Added method
+			addCategoryList: (categories: CategoryType[]) => void;
+			removePost: (postId: string) => void; // Added method
 	  }
 	| undefined
 >(undefined);
@@ -41,7 +43,7 @@ const MainContextProvider: React.FC<{ children: ReactNode }> = ({
 	const addPost = (post: PostType) => {
 		setState((prevState) => ({
 			...prevState,
-			posts: [...prevState.posts, post],
+			posts: makeUniqueById([...prevState.posts, post]),
 		}));
 	};
 
@@ -57,7 +59,7 @@ const MainContextProvider: React.FC<{ children: ReactNode }> = ({
 	const addPostList = (posts: PostType[]) => {
 		setState((prevState) => ({
 			...prevState,
-			posts: [...prevState.posts, ...posts],
+			posts: makeUniqueById([...prevState.posts, ...posts]),
 		}));
 	};
 
@@ -67,10 +69,23 @@ const MainContextProvider: React.FC<{ children: ReactNode }> = ({
 			categories: categories,
 		}));
 	};
+	const removePost = (slug: string) => {
+		setState((prevState) => ({
+			...prevState,
+			posts: prevState.posts.filter((post) => post.slug !== slug),
+		}));
+	};
 
 	return (
 		<MainContext.Provider
-			value={{ state, addPost, updatePost, addPostList, addCategoryList }}
+			value={{
+				state,
+				addPost,
+				updatePost,
+				addPostList,
+				addCategoryList,
+				removePost,
+			}}
 		>
 			{children}
 		</MainContext.Provider>

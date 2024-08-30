@@ -1,13 +1,6 @@
 "use client";
-import {
-	Collapsible,
-	CollapsibleTrigger,
-	CollapsibleContent,
-} from "@/components/ui/collapsible";
-import { Button } from "@/components/ui/button";
+
 import { ReactNode, useEffect, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { useMediaQuery } from "react-responsive";
 import { useRouter } from "next/navigation"; // Use 'next/navigation' instead
 import { useMainContext } from "@/context/main";
@@ -67,7 +60,6 @@ const GridLayout: React.FC<GridLayoutProps> = ({ children }) => {
 	useEffect(() => {
 		setMounted(true);
 		fetchCategories();
-		console.log("render");
 	}, []);
 
 	// Define breakpoints
@@ -80,8 +72,7 @@ const GridLayout: React.FC<GridLayoutProps> = ({ children }) => {
 					<div
 						className={`flex flex-col ${isMobile ? "gap-4" : "md:flex-row"}`}
 					>
-						{/* Sidebar */}
-						<aside className={`w-full ${!isMobile ? "md:w-64" : ""}`}>
+						{/* <aside className={`w-full ${!isMobile ? "md:w-64" : ""}`}>
 							<div className="bg-white rounded-lg shadow-lg p-4">
 								<div className="flex items-center justify-between">
 									<h2 className="text-lg font-bold">Categories</h2>
@@ -106,7 +97,6 @@ const GridLayout: React.FC<GridLayoutProps> = ({ children }) => {
 									)}
 								</div>
 
-								{/* Collapsible Links for Mobile */}
 								{isMobile ? (
 									<Collapsible open={isLinksOpen} onOpenChange={setIsLinksOpen}>
 										<CollapsibleContent>
@@ -119,7 +109,7 @@ const GridLayout: React.FC<GridLayoutProps> = ({ children }) => {
 									<SidebarLinks categories={context?.state.categories || []} />
 								)}
 							</div>
-						</aside>
+						</aside> */}
 
 						{/* Main Content */}
 						<main className={`flex-1 ${isMobile ? "mt-4" : "md:ml-4"}`}>
